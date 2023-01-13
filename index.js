@@ -1,13 +1,13 @@
+import * as fs from 'node:fs';
 import https from 'node:https';
-import * as fs from 'fs';
 import fetch from 'node-fetch';
 
-// import path from 'path';
-
+// Fetching, Converting and saving HTML text to htmlContent
 const website = 'https://memegen-link-examples-upleveled.netlify.app/';
-
 const responseHtml = await fetch(website);
 const htmlContent = await responseHtml.text();
+
+// Selecting the src="Link" using regex
 let m;
 const urls = [];
 const rex = /<img[^>]+src="?([^"\s]+)"?\s*\/>/g;
@@ -16,23 +16,27 @@ while ( m = rex.exec( htmlContent ) ) {
     urls.push( m[1] );
 }
 
+// Choose random arrays from the meme links
 function memeSelector(howManyMemes){
-  let spicyMemes = [];
+  const spicyMemes = [];
   for(let i=0; i < howManyMemes; i++){
     spicyMemes.push(urls[Math.floor(Math.random()*urls.length)]);
   }
   return spicyMemes
 }
+
+// creating the desired *memeStack*
 const memeStack = memeSelector(10);
 
 
-function downloadImage(urls, fileName) {
-  https.get(urls, (res) => {
+// function that uses "https" and "fs" to saves images from links to /memes
+function downloadImage(url, fileName) {
+  https.get(url, (res) => {
       res.pipe(fs.createWriteStream("./memes/"+fileName));
   });
 }
 
-
+// function that fills the meme folder with 10 memes in the desired format and name. Still missing feature: delete folder
 function createMemeFolder(){
   for(let i=0; i < memeStack.length; i++)
   {
