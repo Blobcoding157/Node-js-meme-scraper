@@ -1,24 +1,43 @@
-import * as cheerio from 'cheerio';
-import fs from 'fs';
+import https from 'node:https';
+import * as fs from 'fs';
 import fetch from 'node-fetch';
+import path from 'path';
 
 const website = 'https://memegen-link-examples-upleveled.netlify.app/';
 
-const response = await fetch(website);
-const htmlContent = await response.text();
-// console.log(htmlContent);
-
-let m,
-    urls = [],
-    rex = /<img[^>]+src="?([^"\s]+)"?\s*\/>/g;
+const responseHtml = await fetch(website);
+const htmlContent = await responseHtml.text();
+let m;
+const urls = [];
+const rex = /<img[^>]+src="?([^"\s]+)"?\s*\/>/g;
 
 while ( m = rex.exec( htmlContent ) ) {
     urls.push( m[1] );
 }
 
-console.log( urls );
+function memeSelector(howManyMemes){
+  let spicyMemes = [];
+  for(let i=0; i < howManyMemes; i++){
+    spicyMemes.push(urls[Math.floor(Math.random()*urls.length)]);
+  }
+  return spicyMemes
+}
+const memeStack = memeSelector(10);
 
 
-let files = fs.readdirSync('./memes');
-/* now files is an Array of the name of the files in the folder and you can pick a random name inside of that array */
-let chosenFile = files[Math.floor(Math.random() * files.length)];
+function downloadImage(urls, fileName) {
+  https.get(urls, (res) => {
+      res.pipe(fs.createWriteStream("./memes/"+fileName));
+  });
+}
+
+
+function createMemeFolder(){
+  for(let i=0; i < memeStack.length; i++)
+  {
+    i < 10 ? downloadImage(memeStack[i], `0${i+1}.jpg`) : downloadImage(memeStack[i], `1${i-10}.jpg`);
+  }
+}
+
+
+createMemeFolder();
