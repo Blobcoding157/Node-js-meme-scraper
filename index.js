@@ -1,7 +1,8 @@
 import https from 'node:https';
 import * as fs from 'fs';
 import fetch from 'node-fetch';
-import path from 'path';
+
+// import path from 'path';
 
 const website = 'https://memegen-link-examples-upleveled.netlify.app/';
 
@@ -35,9 +36,8 @@ function downloadImage(urls, fileName) {
 function createMemeFolder(){
   for(let i=0; i < memeStack.length; i++)
   {
-    i < 10 ? downloadImage(memeStack[i], `0${i+1}.jpg`) : downloadImage(memeStack[i], `1${i-10}.jpg`);
+    i < 9 ? downloadImage(memeStack[i], `0${i+1}.jpg`) : downloadImage(memeStack[i], `1${i-9}.jpg`);
   }
 }
-
 
 createMemeFolder();
